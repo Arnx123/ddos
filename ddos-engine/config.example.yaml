@@ -1,0 +1,42 @@
+interfaces:
+  - eth0
+
+backend:
+  api_url: http://backend:3001
+  api_key: ${API_KEY}
+  sync_interval: 30s
+
+protection:
+  l3_l4:
+    syn_flood:
+      enabled: true
+      threshold: 1000
+      burst: 2000
+    
+    udp_flood:
+      enabled: true
+      threshold: 5000
+      burst: 10000
+    
+    icmp_flood:
+      enabled: true
+      threshold: 100
+      burst: 200
+  
+  l7:
+    http_flood:
+      enabled: true
+      threshold: 100
+      burst: 200
+    
+    slowloris:
+      enabled: true
+      timeout: 10s
+
+geoblocking:
+  enabled: true
+  blocked_countries: []
+
+logging:
+  level: info
+  file: /var/log/ddos-engine.log
