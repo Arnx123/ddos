@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest, authenticateToken } from '../middleware/auth';
+import { apiLimiter, writeLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
@@ -30,7 +31,7 @@ async function hasIpAccess(userId: string, role: string, ipId: string): Promise<
 }
 
 // Get attack logs for IP
-router.get('/:ipId', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/:ipId', apiLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { ipId } = req.params;
     const { limit = '100', offset = '0', startDate, endDate } = req.query;
@@ -70,7 +71,7 @@ router.get('/:ipId', authenticateToken, async (req: AuthRequest, res: Response) 
 });
 
 // Get attack statistics for IP
-router.get('/:ipId/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/:ipId/stats', apiLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { ipId } = req.params;
     const { days = '7' } = req.query;
@@ -188,7 +189,7 @@ router.get('/:ipId/stats', authenticateToken, async (req: AuthRequest, res: Resp
 });
 
 // Create attack log (for testing/simulation)
-router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post('/', writeLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const {
       ip_id,

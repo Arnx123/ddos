@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest, authenticateToken, requireOwner } from '../middleware/auth';
+import { apiLimiter, writeLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ async function isIpOwner(userId: string, ipId: string): Promise<boolean> {
 }
 
 // Get geo-blocks for IP
-router.get('/:ipId', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/:ipId', apiLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { ipId } = req.params;
 
@@ -41,7 +42,7 @@ router.get('/:ipId', authenticateToken, async (req: AuthRequest, res: Response) 
 });
 
 // Create geo-block (owner only)
-router.post('/', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.post('/', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { ip_id, country_code, action } = req.body;
 
@@ -79,7 +80,7 @@ router.post('/', authenticateToken, requireOwner, async (req: AuthRequest, res: 
 });
 
 // Update geo-block (owner only)
-router.put('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.put('/:id', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { action } = req.body;
@@ -112,7 +113,7 @@ router.put('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res
 });
 
 // Delete geo-block (owner only)
-router.delete('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 

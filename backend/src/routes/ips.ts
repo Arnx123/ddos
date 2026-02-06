@@ -1,11 +1,12 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AuthRequest, authenticateToken, requireOwner } from '../middleware/auth';
+import { apiLimiter, writeLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
 // Get all IPs for current user
-router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/', apiLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     let query = supabase
       .from('ip_addresses')
@@ -37,7 +38,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 });
 
 // Get single IP
-router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/:id', apiLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -75,7 +76,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
 });
 
 // Create IP (owner only)
-router.post('/', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.post('/', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { ip_address, label, firewall_mode } = req.body;
 
@@ -109,7 +110,7 @@ router.post('/', authenticateToken, requireOwner, async (req: AuthRequest, res: 
 });
 
 // Update IP
-router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.put('/:id', writeLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { label, status, firewall_mode } = req.body;
@@ -147,7 +148,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
 });
 
 // Delete IP (owner only)
-router.delete('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 

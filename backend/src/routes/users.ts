@@ -2,11 +2,12 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { supabase } from '../config/supabase';
 import { AuthRequest, authenticateToken, requireOwner } from '../middleware/auth';
+import { apiLimiter, writeLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
 // Get all users (owner only)
-router.get('/', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.get('/', apiLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { data: users, error } = await supabase
       .from('users')
@@ -23,7 +24,7 @@ router.get('/', authenticateToken, requireOwner, async (req: AuthRequest, res: R
 });
 
 // Create user (owner only)
-router.post('/', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.post('/', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { email, password, role, full_name } = req.body;
 
@@ -63,7 +64,7 @@ router.post('/', authenticateToken, requireOwner, async (req: AuthRequest, res: 
 });
 
 // Update user (owner only)
-router.put('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.put('/:id', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { email, password, role, full_name } = req.body;
@@ -98,7 +99,7 @@ router.put('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res
 });
 
 // Delete user (owner only)
-router.delete('/:id', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -119,7 +120,7 @@ router.delete('/:id', authenticateToken, requireOwner, async (req: AuthRequest, 
 });
 
 // Assign IP to user (owner only)
-router.post('/:userId/ips/:ipId', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.post('/:userId/ips/:ipId', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { userId, ipId } = req.params;
 
@@ -144,7 +145,7 @@ router.post('/:userId/ips/:ipId', authenticateToken, requireOwner, async (req: A
 });
 
 // Remove IP from user (owner only)
-router.delete('/:userId/ips/:ipId', authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
+router.delete('/:userId/ips/:ipId', writeLimiter, authenticateToken, requireOwner, async (req: AuthRequest, res: Response) => {
   try {
     const { userId, ipId } = req.params;
 

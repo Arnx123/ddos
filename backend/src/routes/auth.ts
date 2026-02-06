@@ -4,11 +4,12 @@ import jwt from 'jsonwebtoken';
 import { supabase } from '../config/supabase';
 import { config } from '../config';
 import { AuthRequest, authenticateToken } from '../middleware/auth';
+import { authLimiter, apiLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
 // Login
-router.post('/login', async (req, res: Response) => {
+router.post('/login', authLimiter, async (req, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -59,7 +60,7 @@ router.post('/login', async (req, res: Response) => {
 });
 
 // Get current user
-router.get('/me', authenticateToken, async (req: AuthRequest, res: Response) => {
+router.get('/me', apiLimiter, authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { data: user, error } = await supabase
       .from('users')
