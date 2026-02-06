@@ -16,8 +16,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    depends_on:
-      - frontend
 
   frontend:
     build:
@@ -33,6 +31,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+    depends_on:
+      - backend
 
   ddos-engine:
     build:

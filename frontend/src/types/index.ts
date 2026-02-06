@@ -4,6 +4,7 @@ export interface User {
   role: 'owner' | 'subuser';
   full_name?: string;
   created_at: string;
+  last_login?: string;
 }
 
 export interface IPAddress {
